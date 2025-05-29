@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Greenwood Forest",
+    "theme": "forest",
+    "color": "#43e97b",
+    "bg": "#e0cfa9",
+    "monsterIds": [1,2,3,6],
+    "music": "forest",
+    "unlocked": true
+  },
+  {
+    "id": 2,
+    "name": "Shadow Cavern",
+    "theme": "cavern",
+    "color": "#b388ff",
+    "bg": "#bfa76a",
+    "monsterIds": [4,5,7,8],
+    "music": "cavern",
+    "unlocked": true
+  },
+  {
+    "id": 3,
+    "name": "Dragon Peak",
+    "theme": "mountain",
+    "color": "#ffd600",
+    "bg": "#f5ecd7",
+    "monsterIds": [9,10],
+    "music": "mountain",
+    "unlocked": true
+  }
+]

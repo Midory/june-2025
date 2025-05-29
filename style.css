@@ -1,0 +1,398 @@
+body {
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    background: #f5ecd7 url('https://www.transparenttextures.com/patterns/old-mathematics.png'); /* parchment texture */
+    min-height: 100vh;
+    color: #3e2723;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    transition: background 0.8s;
+}
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
+
+h1, h2, h3 {
+    font-family: 'MedievalSharp', cursive, 'Montserrat', Arial, sans-serif;
+    letter-spacing: 1px;
+    color: #bfa76a;
+    text-shadow: 0 2px 0 #fff8e1, 0 0 8px #fff8e1aa;
+}
+#main-layout {
+    display: flex;
+    min-height: 100vh;
+    align-items: stretch;
+    background: none;
+}
+#sidebar {
+    width: 380px;
+    min-width: 320px;
+    max-width: 420px;
+    background: #fff8e1cc;
+    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+    box-shadow: 2px 0 24px #bfa76a55, 0 0 0 #000;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    border-top-right-radius: 24px 32px;
+    border-bottom-right-radius: 24px 32px;
+    border-left: 8px solid #c2b280;
+    border-right: 2px solid #c2b280;
+    border-top: 2px solid #c2b280;
+    border-bottom: 2px solid #c2b280;
+    z-index: 2;
+    background-image: url('https://www.transparenttextures.com/patterns/old-mathematics.png');
+    position: relative;
+    left: 0;
+}
+
+#sidebar h2 {
+    margin-top: 0;
+    margin-bottom: 1.2rem;
+    font-size: 1.5rem;
+    color: #bfa76a;
+    text-shadow: 0 2px 0 #fff8e1, 0 0 8px #fff8e1aa;
+}
+#heroes-list {
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    scrollbar-color: #ffd600 #fff8e1;
+    scrollbar-width: thin;
+}
+#game-container {
+    flex: 1;
+    margin: 2.5rem 2rem;
+    min-width: 340px;
+    max-width: 600px;
+    align-self: center;
+    background: #fff8e1ee;
+    border-radius: 32px 24px 32px 24px;
+    box-shadow: 0 0 40px #bfa76a88, 0 0 0 #000;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    border: 8px solid #c2b280;
+    background-image: url('https://www.transparenttextures.com/patterns/old-mathematics.png');
+}
+#monster-area {
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+#monster-img {
+    display: block;
+    margin: 0 auto 0.5rem auto;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 1rem;
+    animation: monster-bounce 2s infinite;
+    box-shadow: 0 0 24px #ffd60055, 0 0 0 #000;
+    border-radius: 16px;
+    background: #fff8e1;
+    border: 3px solid #bfa76a;
+}
+@keyframes monster-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+#click-btn {
+    font-size: 2.2rem;
+    padding: 1.2rem 2.2rem;
+    margin-bottom: 1rem;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
+    color: #222;
+    cursor: pointer;
+    box-shadow: 0 4px 16px #0005;
+    transition: transform 0.1s, box-shadow 0.2s, background 0.3s;
+    position: relative;
+    z-index: 1;
+}
+#click-btn:active {
+    transform: scale(1.08);
+    box-shadow: 0 2px 8px #0007;
+    background: linear-gradient(90deg, #38f9d7 0%, #43e97b 100%);
+}
+#click-btn.pulse {
+    animation: pulse 0.4s;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.13); }
+    100% { transform: scale(1); }
+}
+#click-feedback {
+    position: absolute;
+    left: 50%;
+    top: 10%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    color: #ffeb3b;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, top 0.3s;
+    text-shadow: 0 0 8px #fff7;
+}
+#click-feedback.active {
+    opacity: 1;
+    top: -30px;
+}
+#progress-bar {
+    width: 100%;
+    height: 18px;
+    background: #222b;
+    border-radius: 8px;
+    margin: 0.7rem 0 1.2rem 0;
+    overflow: hidden;
+    box-shadow: 0 1px 6px #0003;
+}
+#progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, #ffd600 0%, #ff9800 100%);
+    width: 0%;
+    border-radius: 8px;
+    transition: width 0.4s;
+}
+#upgrades {
+    margin-top: 2rem;
+}
+#upgrade-btn {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #ffd600 0%, #bfa76a 100%);
+    color: #3e2723;
+    cursor: pointer;
+    box-shadow: 0 0 12px #ffd60088;
+    font-family: 'MedievalSharp', cursive, 'Montserrat', Arial, sans-serif;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: 3px solid #bfa76a;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+#upgrade-btn:disabled {
+    background: #e0cfa9;
+    color: #bfa76a;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+#upgrade-btn:not(:disabled):hover {
+    background: linear-gradient(90deg, #fff59d 0%, #ffd600 100%);
+    box-shadow: 0 0 24px #ffd600cc;
+}
+#save-load {
+    margin-top: 2rem;
+}
+#reset-btn {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #ff5252 0%, #bfa76a 100%);
+    color: #fff8e1;
+    cursor: pointer;
+    box-shadow: 0 0 12px #ff525288;
+    font-family: 'MedievalSharp', cursive, 'Montserrat', Arial, sans-serif;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: 3px solid #bfa76a;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+#reset-btn:hover {
+    background: linear-gradient(90deg, #ffd600 0%, #ff5252 100%);
+    box-shadow: 0 0 24px #ff5252cc;
+}
+#points {
+    font-size: 1.2rem;
+    color: #bfa76a;
+    font-weight: bold;
+    text-shadow: 0 0 8px #fff8e1aa;
+}
+#click-value {
+    font-size: 1.1rem;
+    color: #43e97b;
+    text-shadow: 0 0 8px #fff8e1aa;
+}
+.hero-card {
+    background: #fff8e1ee;
+    border-radius: 14px 10px 14px 10px;
+    padding: 0.5rem 1.2rem 0.5rem 0.7rem;
+    margin-bottom: 0;
+    box-shadow: 0 2px 8px #bfa76a33;
+    text-align: left;
+    border: 2px solid #c2b280;
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    min-height: 64px;
+    max-height: 72px;
+    transition: transform 0.2s, box-shadow 0.2s, border 0.2s;
+}
+.hero-card:hover {
+    transform: scale(1.03) rotate(-1deg);
+    box-shadow: 0 4px 24px #ffd60055;
+    border: 2px solid #ffd600;
+}
+
+.hero-svg {
+    flex: 0 0 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.hero-info {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.2rem;
+    min-width: 0;
+}
+
+.hero-main {
+    flex: 1 1 60%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.hero-name {
+    font-size: 1.08rem;
+    color: #bfa76a;
+    font-family: 'MedievalSharp', cursive, 'Montserrat', Arial, sans-serif;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.hero-desc {
+    font-size: 0.97rem;
+    color: #3e2723;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.hero-stats {
+    flex: 0 0 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.1rem;
+    font-size: 0.97rem;
+    color: #43e97b;
+    min-width: 80px;
+}
+.hero-stats strong {
+    color: #bfa76a;
+    font-weight: bold;
+}
+.buy-hero-btn {
+    padding: 0.3rem 1.1rem;
+    border: none;
+    border-radius: 8px;
+    background: #43a047;
+    color: #fff;
+    cursor: pointer;
+    margin-left: 0.7rem;
+    font-size: 1rem;
+    font-family: 'MedievalSharp', cursive, 'Montserrat', Arial, sans-serif;
+    transition: background 0.2s;
+    box-shadow: 0 0 8px #43e97b55;
+    font-weight: bold;
+}
+.buy-hero-btn:disabled {
+    background: #888;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+.buy-hero-btn:not(:disabled):hover {
+    background: #2e7031;
+}
+#monster-hp-bar {
+    width: 100%;
+    height: 22px;
+    background: #e0cfa9;
+    border-radius: 8px;
+    margin: 0.5rem 0 0.7rem 0;
+    overflow: hidden;
+    box-shadow: 0 1px 6px #bfa76a55;
+    border: 2px dashed #bfa76a;
+    position: relative;
+}
+#monster-hp-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, #ffd600 0%, #ff9800 100%);
+    width: 100%;
+    border-radius: 8px;
+    transition: width 0.3s;
+    color: #3e2723;
+    font-weight: bold;
+    text-align: center;
+    line-height: 22px;
+    font-size: 1.1rem;
+    text-shadow: 0 1px 0 #fff8e1;
+}
+#monster-name {
+    margin: 0.5rem 0 0.2rem 0;
+    color: #ff9800;
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+}
+.fade-out {
+    animation: fadeOut 0.4s forwards;
+}
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+.shake {
+    animation: shake 0.2s;
+}
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    50% { transform: translateX(6px); }
+    75% { transform: translateX(-6px); }
+    100% { transform: translateX(0); }
+}
+/* Particle effect */
+.particle {
+    position: absolute;
+    pointer-events: none;
+    font-size: 1.2rem;
+    color: #fff59d;
+    opacity: 0.85;
+    text-shadow: 0 0 8px #fff7;
+    animation: particle-float 1s linear forwards;
+}
+@keyframes particle-float {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-60px) scale(1.3); }
+}
+.hero-svg {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+#game-version {
+    font-size: 1.1rem;
+    color: #bfa76a;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+    font-family: 'MedievalSharp', cursive, 'Montserrat', Arial, sans-serif;
+}

@@ -1,0 +1,12 @@
+[
+  { "id": 1, "name": "Slime", "hp": 10, "reward": 5, "image": "images/monster_slime.svg" },
+  { "id": 2, "name": "Goblin", "hp": 25, "reward": 12, "image": "images/monster_goblin.svg" },
+  { "id": 3, "name": "Wolf", "hp": 40, "reward": 20, "image": "images/monster_wolf.svg" },
+  { "id": 4, "name": "Skeleton", "hp": 60, "reward": 30, "image": "images/monster_skeleton.svg" },
+  { "id": 5, "name": "Orc", "hp": 90, "reward": 45, "image": "images/monster_orc.svg" },
+  { "id": 6, "name": "Bat", "hp": 120, "reward": 60, "image": "images/monster_bat.svg" },
+  { "id": 7, "name": "Zombie", "hp": 160, "reward": 80, "image": "images/monster_zombie.svg" },
+  { "id": 8, "name": "Golem", "hp": 210, "reward": 110, "image": "images/monster_golem.svg" },
+  { "id": 9, "name": "Witch", "hp": 270, "reward": 140, "image": "images/monster_witch.svg" },
+  { "id": 10, "name": "Dragon", "hp": 350, "reward": 200, "image": "images/monster_dragon.svg" }
+]
