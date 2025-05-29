@@ -1,25 +1,20 @@
 // Constants
-const INITIAL_CLICK_VALUE = 1;
-const INITIAL_UPGRADE_COST = 10;
-const UPGRADE_COST_MULTIPLIER = 1.5;
 const SAVE_KEY = 'clickerSave';
+const MONSTERS_PER_LEVEL = 10; // Number of monsters per level
+const LEVELS_PER_WORLD = 100; // Number of levels in each world
+const INITIAL_CLICK_VALUE = 1; // Initial click value
+const INITIAL_UPGRADE_COST = 10; // Initial cost for click upgrade
 const version = '1.0.0';
 
 // Game state object
 const gameState = {
     points: 0,
-    clickValue: INITIAL_CLICK_VALUE,
-    upgradeLevel: 0,
-    upgradeCost: INITIAL_UPGRADE_COST,
-    ownedHeroes: {} // Track owned heroes and their counts
+    ownedHeroes: { 1: 1 }, // Start with 1 Warrior
+    currentLevel: 1 // Track current level in game state
 };
 
 // DOM elements
 const pointsDisplay = document.getElementById('points');
-const upgradeBtn = document.getElementById('upgrade-btn');
-const upgradeLevelDisplay = document.getElementById('upgrade-level');
-const clickValueDisplay = document.getElementById('click-value');
-const clickFeedback = document.getElementById('click-feedback');
 const resetBtn = document.getElementById('reset-btn');
 const heroesList = document.getElementById('heroes-list');
 const progressBarInner = document.getElementById('progress-bar-inner');
@@ -27,6 +22,7 @@ const monsterImg = document.getElementById('monster-img');
 const totalDpsDisplay = document.getElementById('total-dps');
 const worldMap = document.getElementById('world-map');
 const currentWorldDisplay = document.getElementById('current-world');
+const heroPointsDisplay = document.getElementById('hero-points');
 
 // Load heroes from JSON file (for now, fetch locally)
 let heroes = [];
@@ -94,11 +90,53 @@ function renderWorldMap() {
             if (getCurrentWorld().id !== wid) {
                 currentWorldId = wid;
                 monstersDefeated = 0;
+                gameState.currentLevel = 1; // Reset level to 1 when changing world
                 spawnMonster();
                 updateWorldUI();
             }
         };
     });
+}
+
+function getCurrentLevel() {
+    return gameState.currentLevel;
+}
+
+function getMonsterForLevel(world, level, monsterIndex) {
+    // Each level contains 10 monsters, cycling through world.monsterIds
+    const monsterId = world.monsterIds[monsterIndex % world.monsterIds.length];
+    const baseMonster = monsters.find(m => m.id === monsterId);
+    // HP scaling: base HP * (1 + 0.15 * (level-1))
+    const hpScale = 1 + 0.15 * (level - 1);
+    return {
+        ...baseMonster,
+        hp: Math.floor(baseMonster.hp * hpScale),
+        reward: Math.floor(baseMonster.reward * hpScale)
+    };
+}
+
+function spawnMonster() {
+    const world = getCurrentWorld();
+    const monsterIndex = monstersDefeated % MONSTERS_PER_LEVEL;
+    currentMonster = getMonsterForLevel(world, gameState.currentLevel, monsterIndex);
+    monsterHP = currentMonster.hp;
+    setMonsterSvgImage(currentMonster.image);
+    updateMonsterUI();
+    updateWorldUI();
+}
+
+function defeatMonster() {
+    monstersDefeated++;
+    gameState.points += currentMonster.reward;
+    // Advance to next level after every 10 monsters
+    log.info(`Defeated monster: ${currentMonster.name}, Reward: ${currentMonster.reward} points`);
+    if (monstersDefeated == MONSTERS_PER_LEVEL) {
+        gameState.currentLevel++;
+        log.info(`Level up! Now at level ${gameState.currentLevel}`);
+        monstersDefeated = 0; // Reset monstersDefeated for new level
+    }
+    updateUI();
+    spawnMonster();
 }
 
 function updateWorldUI() {
@@ -109,32 +147,19 @@ function updateWorldUI() {
         worldDisplay.textContent = `World: ${world.name}`;
         worldDisplay.style.color = world.color;
     }
-    // Show world progress (monsters defeated / needed)
+    // Show world progress (level and monsters defeated in level)
     const worldProgress = document.getElementById('world-progress');
     if (worldProgress) {
-        // Only show progress if there is a next world to unlock
-        const idx = worlds.findIndex(w => w.id === currentWorldId);
-        if (idx < worlds.length - 1) {
-            const remaining = 10 - monstersDefeated;
-            worldProgress.textContent = `Defeated: ${monstersDefeated} / 10 monsters to unlock next world (${remaining > 0 ? remaining + ' left' : 'ready!'})`;
-            worldProgress.style.display = '';
-        } else {
-            worldProgress.textContent = `All worlds unlocked! Monsters defeated in this world: ${monstersDefeated}`;
-            worldProgress.style.display = '';
-        }
+        worldProgress.textContent = `Level: ${gameState.currentLevel} / ${LEVELS_PER_WORLD}  |  Monster ${((monstersDefeated % MONSTERS_PER_LEVEL) + 1)} / ${MONSTERS_PER_LEVEL}`;
+        worldProgress.style.display = '';
     }
 }
 
 // Update spawnMonster to use world-specific monsters
 function spawnMonster() {
     const world = getCurrentWorld();
-    const ids = world.monsterIds;
-    const idx = monstersDefeated % ids.length;
-    const monsterId = ids[idx];
-    currentMonster = { ...monsters.find(m => m.id === monsterId) };
-    const scale = 1 + Math.floor(monstersDefeated / ids.length) * 0.25;
-    currentMonster.hp = Math.floor(currentMonster.hp * scale);
-    currentMonster.reward = Math.floor(currentMonster.reward * scale);
+    const monsterIndex = monstersDefeated % MONSTERS_PER_LEVEL;
+    currentMonster = getMonsterForLevel(world, gameState.currentLevel, monsterIndex);
     monsterHP = currentMonster.hp;
     if (monsterImg && currentMonster.image) {
         monsterImg.onerror = null;
@@ -142,26 +167,6 @@ function spawnMonster() {
     }
     updateMonsterUI();
     updateWorldUI();
-}
-
-function defeatMonster() {
-    if (monsterImg) {
-        monsterImg.classList.add('fade-out');
-        setTimeout(() => {
-            monsterImg.classList.remove('fade-out');
-            monstersDefeated++;
-            gameState.points += currentMonster.reward;
-            updateUI();
-            if (monstersDefeated === 10) unlockNextWorld();
-            spawnMonster();
-        }, 400);
-    } else {
-        monstersDefeated++;
-        gameState.points += currentMonster.reward;
-        updateUI();
-        if (monstersDefeated === 10) unlockNextWorld();
-        spawnMonster();
-    }
 }
 
 /**
@@ -219,14 +224,8 @@ function purchaseHero(heroId) {
  */
 function spawnMonster() {
     const world = getCurrentWorld();
-    const ids = world.monsterIds;
-    const idx = monstersDefeated % ids.length;
-    const monsterId = ids[idx];
-    currentMonster = { ...monsters.find(m => m.id === monsterId) };
-    // Increase difficulty for each cycle
-    const scale = 1 + Math.floor(monstersDefeated / ids.length) * 0.25;
-    currentMonster.hp = Math.floor(currentMonster.hp * scale);
-    currentMonster.reward = Math.floor(currentMonster.reward * scale);
+    const monsterIndex = monstersDefeated % MONSTERS_PER_LEVEL;
+    currentMonster = getMonsterForLevel(world, gameState.currentLevel, monsterIndex);
     monsterHP = currentMonster.hp;
     // Set monster image to local SVG only, and remove any onerror handler
     if (monsterImg && currentMonster.image) {
@@ -246,9 +245,20 @@ function renderHeroes() {
         heroesList.innerHTML = '<p>No heroes available.</p>';
         return;
     }
-    heroesList.innerHTML = heroes.map(hero => {
+    // Only show heroes we own, can afford, or the next unaffordable hero in the list
+    let shownNext = false;
+    heroesList.innerHTML = heroes.map((hero, idx) => {
         const count = gameState.ownedHeroes[hero.id] || 0;
         const price = Math.floor(hero.cost * Math.pow(1.15, count));
+        const canAfford = gameState.points >= price;
+        // Show if owned, can afford, or (first unaffordable hero after all previous are hidden)
+        if (count > 0 || canAfford) {
+            shownNext = false;
+        } else if (!shownNext) {
+            shownNext = true;
+        } else {
+            return '';
+        }
         let heroSvg = '';
         if (hero.id === 1) {
             heroSvg = `<img src="images/hero_warrior.svg" width="48" height="48" alt="Warrior" />`;
@@ -292,11 +302,18 @@ function renderHeroes() {
  * Update all UI elements to reflect the current game state.
  */
 function updateUI() {
-    pointsDisplay.textContent = `Points: ${gameState.points}`;
-    upgradeLevelDisplay.textContent = `Upgrade Level: ${gameState.upgradeLevel}`;
-    upgradeBtn.textContent = `Upgrade Click (Cost: ${gameState.upgradeCost})`;
-    upgradeBtn.disabled = gameState.points < gameState.upgradeCost;
-    clickValueDisplay.textContent = `Click Value: ${gameState.clickValue}`;
+    if (heroPointsDisplay) {
+        heroPointsDisplay.textContent = `Points: ${gameState.points}`;
+    }
+    // Remove pointsDisplay.textContent assignment (pointsDisplay is null)
+    // if (pointsDisplay) {
+    //     pointsDisplay.textContent = '';
+    // }
+    // Remove click value and upgrade UI
+    // upgradeLevelDisplay.textContent = `Upgrade Level: ${gameState.upgradeLevel}`;
+    // upgradeBtn.textContent = `Upgrade Click (Cost: ${gameState.upgradeCost})`;
+    // upgradeBtn.disabled = gameState.points < gameState.upgradeCost;
+    // clickValueDisplay.textContent = `Click Value: ${gameState.clickValue}`;
     updateProgressBar();
     // Highlight total DPS
     if (totalDpsDisplay) {
@@ -343,6 +360,7 @@ function loadProgress() {
             gameState.upgradeLevel = data.upgradeLevel ?? 0;
             gameState.upgradeCost = data.upgradeCost ?? INITIAL_UPGRADE_COST;
             gameState.ownedHeroes = data.ownedHeroes ?? {}; // Now an object
+            gameState.currentLevel = data.currentLevel ?? 1;
         }
     } catch (e) {
         console.error('Failed to load progress:', e);
@@ -358,6 +376,7 @@ function resetProgress() {
     gameState.upgradeLevel = 0;
     gameState.upgradeCost = INITIAL_UPGRADE_COST;
     gameState.ownedHeroes = {}; // Now an object
+    gameState.currentLevel = 1;
     saveProgress();
     updateUI();
 }
@@ -381,13 +400,30 @@ function spawnParticle(x, y) {
 function updateMonsterUI() {
     if (!currentMonster) return;
     monsterNameDisplay.textContent = currentMonster.name;
-    monsterHPBarInner.style.width = (monsterHP / currentMonster.hp * 100) + '%';
-    monsterHPBarInner.textContent = `${monsterHP} / ${currentMonster.hp}`;
-    // Set monster image to local SVG only, and remove any onerror handler
-    if (monsterImg && currentMonster.image) {
-        monsterImg.onerror = null; // Ensure no fallback
-        monsterImg.src = currentMonster.image;
-    }
+    // Update monster HP bar in SVG
+    updateMonsterHpBar(monsterHP, currentMonster.hp);
+    // Update monster image in SVG
+    setMonsterSvgImage(currentMonster.image);
+}
+
+/**
+ * Update monster HP bar in SVG
+ */
+function updateMonsterHpBar(current, max) {
+    const hpBar = document.getElementById('monster-hp-bar-inner-svg');
+    const hpText = document.getElementById('monster-hp-text');
+    if (!hpBar || !hpText) return;
+    const percent = Math.max(0, Math.min(1, current / max));
+    hpBar.setAttribute('width', (140 * percent).toString());
+    hpText.textContent = `${Math.ceil(current)} / ${Math.ceil(max)} HP`;
+}
+
+/**
+ * Update monster image in SVG
+ */
+function setMonsterSvgImage(src) {
+    const img = document.getElementById('monster-img-svg');
+    if (img) img.setAttribute('href', src);
 }
 
 /**
@@ -403,8 +439,8 @@ function damageMonster(dmg) {
         defeatMonster();
     } else {
         // Animate HP bar
-        monsterHPBarInner.classList.add('shake');
-        setTimeout(() => monsterHPBarInner.classList.remove('shake'), 200);
+        //monsterHPBarInner.classList.add('shake');
+        //setTimeout(() => monsterHPBarInner.classList.remove('shake'), 200);
     }
 }
 
@@ -430,20 +466,6 @@ function defeatMonster() {
         updateUI();
         if (monstersDefeated === 10) unlockNextWorld();
         spawnMonster();
-    }
-}
-
-/**
- * Handle upgrade button click event.
- */
-function handleUpgrade() {
-    if (gameState.points >= gameState.upgradeCost) {
-        gameState.points -= gameState.upgradeCost;
-        gameState.upgradeLevel++;
-        gameState.clickValue++;
-        gameState.upgradeCost = Math.floor(gameState.upgradeCost * UPGRADE_COST_MULTIPLIER);
-        updateUI();
-        saveProgress();
     }
 }
 
@@ -500,15 +522,7 @@ function playChiptuneTheme() {
     loop();
 }
 
-// Add a play button for the chiptune theme
-window.addEventListener('DOMContentLoaded', () => {
-    const btn = document.createElement('button');
-    btn.textContent = 'Play 16-bit Theme';
-    btn.style = 'margin:0.5rem 0 1.5rem 0;padding:0.5rem 1.2rem;font-size:1.1rem;background:#ffd600;color:#3e2723;border-radius:8px;border:2px solid #bfa76a;box-shadow:0 0 8px #bfa76a88;cursor:pointer;font-family:MedievalSharp,cursive;';
-    btn.onclick = playChiptuneTheme;
-    const container = document.getElementById('audio-theme-container') || document.body;
-    container.insertBefore(btn, container.firstChild);
-});
+
 
 // Start hero DPS interval
 setInterval(() => {
@@ -520,8 +534,64 @@ setInterval(() => {
     }
 }, 100);
 
+// --- CANVAS AUTO-BATTLE SYSTEM (v1.0) ---
+const battleCanvas = document.getElementById('battle-canvas');
+const battleCtx = battleCanvas ? battleCanvas.getContext('2d') : null;
+
+function drawBattleScene() {
+    if (!battleCtx || !battleCanvas) return;
+    // Clear
+    battleCtx.clearRect(0, 0, battleCanvas.width, battleCanvas.height);
+    // Draw background
+    battleCtx.fillStyle = '#fff8e1';
+    battleCtx.fillRect(0, 0, battleCanvas.width, battleCanvas.height);
+    // Draw heroes (owned)
+    const ownedHeroes = heroes.filter(h => gameState.ownedHeroes[h.id]);
+    ownedHeroes.forEach((hero, i) => {
+        // Position heroes vertically spaced on left
+        const y = 60 + i * 60;
+        drawHeroSprite(hero, 60, y, 48, 48);
+    });
+    // Draw monster (right side)
+    if (currentMonster) {
+        drawMonsterSprite(currentMonster, battleCanvas.width - 120, battleCanvas.height / 2 - 48, 96, 96);
+    }
+    // Draw floating damage numbers, effects, etc. (future)
+}
+
+function drawHeroSprite(hero, x, y, w, h) {
+    // Use SVG or fallback block
+    let img = new window.Image();
+    if (hero.id === 1) img.src = 'images/hero_warrior.svg';
+    else if (hero.id === 2) img.src = 'images/hero_archer.svg';
+    else if (hero.id === 3) img.src = 'images/hero_mage.svg';
+    else img = null;
+    if (img) {
+        img.onload = () => battleCtx.drawImage(img, x, y, w, h);
+        if (img.complete) battleCtx.drawImage(img, x, y, w, h);
+    } else {
+        // Fallback: colored block
+        battleCtx.fillStyle = '#bfa76a';
+        battleCtx.fillRect(x, y, w, h);
+    }
+}
+
+function drawMonsterSprite(monster, x, y, w, h) {
+    let img = new window.Image();
+    img.src = monster.image;
+    img.onload = () => battleCtx.drawImage(img, x, y, w, h);
+    if (img.complete) battleCtx.drawImage(img, x, y, w, h);
+}
+
+function battleLoop() {
+    drawBattleScene();
+    window.requestAnimationFrame(battleLoop);
+}
+if (battleCanvas && battleCtx) {
+    window.requestAnimationFrame(battleLoop);
+}
+
 // Event listeners
-upgradeBtn.addEventListener('click', handleUpgrade);
 resetBtn.addEventListener('click', () => {
     if (confirm('Are you sure you want to reset your progress?')) {
         resetProgress();
@@ -529,6 +599,9 @@ resetBtn.addEventListener('click', () => {
 });
 
 window.addEventListener('DOMContentLoaded', async () => {
+    // Lower music volume to 5%
+    const audio = document.getElementById('audio-theme');
+    if (audio) audio.volume = 0.05;
     loadProgress();
     updateUI();
     await loadHeroes();
@@ -536,7 +609,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     await loadMonsters();
     renderWorldMap();
     updateWorldUI();
-    // Remove clickBtn event and make monsterImg clickable
     if (monsterImg) {
         monsterImg.style.cursor = 'pointer';
         //monsterImg.addEventListener('click', handleClick);

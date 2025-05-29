@@ -17,6 +17,7 @@
     <div id="main-layout">
         <aside id="sidebar">
             <h2>Heroes</h2>
+            <div id="hero-points" style="font-size:1.13rem;color:#bfa76a;font-weight:bold;text-shadow:0 0 8px #ffd60055;margin-bottom:0.7rem;">Points: 0</div>
             <div id="heroes-list"></div>
         </aside>
         <div id="game-container">
@@ -29,31 +30,37 @@
             </header>
             <div id="total-dps">Total DPS: 0</div>
             <div id="current-world" style="font-size:1.15rem;font-family:'MedievalSharp',cursive;margin:0.7rem 0 0.5rem 0;"></div>
-            <div id="world-map" style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;margin-bottom:1.2rem;background:#fff8e1cc;border-radius:18px;padding:0.7rem 0.5rem 0.5rem 0.5rem;box-shadow:0 0 12px #bfa76a55;"></div>
             <div id="monster-area">
-                <img id="monster-img" src="images/monster_bat.svg" alt="Monster" style="box-shadow:0 0 24px #ffd60055,0 0 0 #000; border-radius:16px; background:#181828;" />
+                <svg id="monster-svg" width="180" height="180" viewBox="0 0 180 180" style="display:block;margin:0 auto 0.5rem auto;background:#181828;border-radius:16px;box-shadow:0 0 24px #ffd60055;">
+                    <image id="monster-img-svg" href="images/monster_bat.svg" x="20" y="20" width="140" height="120" />
+                    <rect id="monster-hp-bar-bg" x="20" y="150" width="140" height="16" rx="8" fill="#bfa76a" />
+                    <rect id="monster-hp-bar-inner-svg" x="20" y="150" width="140" height="16" rx="8" fill="#ffd600" />
+                    <text id="monster-hp-text" x="90" y="162" text-anchor="middle" fill="#3e2723" font-size="13" font-family="'Montserrat',Arial,sans-serif" font-weight="bold">HP</text>
+                </svg>
                 <h2 id="monster-name"></h2>
-                <div id="monster-hp-bar"><div id="monster-hp-bar-inner"></div></div>
                 <span id="click-feedback"></span>
                 <div id="progress-bar"><div id="progress-bar-inner"></div></div>
-                <p id="points" style="font-size:1.2rem;color:#ffd600;font-weight:bold;text-shadow:0 0 8px #ffd60055;">Points: 0</p>
-                <p id="click-value" style="font-size:1.1rem;color:#43e97b;">Click Value: 1</p>
+                <!-- Removed old monster HP bar and face image -->
             </div>
-            <div id="upgrades">
-                <h2>Upgrades</h2>
-                <button id="upgrade-btn" style="box-shadow:0 0 12px #43e97b88;">Upgrade Click (Cost: 10)</button>
-                <p id="upgrade-level">Upgrade Level: 0</p>
-            </div>
+            <!-- <div id="battle-canvas-container" style="display:flex;justify-content:center;align-items:center;margin-bottom:1.2rem;">
+                <canvas id="battle-canvas" width="900" height="450" style="background:#fff8e1;border:3px solid #bfa76a;border-radius:18px;box-shadow:0 0 32px #bfa76a77;max-width:99vw;max-height:60vh;"></canvas>
+            </div> -->
+            <!-- Battle canvas temporarily disabled -->
             <div id="save-load">
                 <button id="reset-btn" style="box-shadow:0 0 12px #f4433688;">Reset Progress</button>
             </div>
-            <div id="audio-theme-container" style="margin:1rem 0;">
-                <audio id="audio-theme" src="audio/theme-chiptune.mp3" loop autoplay controls style="width:220px;border-radius:8px;box-shadow:0 0 8px #bfa76a88;"></audio>
+            <!-- <div id="audio-theme-container" style="margin:1rem 0;">
+                <audio id="audio-theme" src="audio/theme-chiptune.mp3" loop autoplay controls style="width:220px;border-radius:8px;box-shadow:0 0 8px #bfa76a88;" volume="0.05"></audio>
                 <div style="font-size:0.95rem;color:#bfa76a;margin-top:0.2rem;">16-bit Theme: <span style="font-family:'MedievalSharp',cursive;">Chiptune Adventure</span></div>
-            </div>
+            </div> -->
+            <!-- Music temporarily removed -->
             <div id="world-progress" style="font-size:1.05rem;color:#3e2723;margin-bottom:0.7rem;"></div>
         </div>
+        <aside id="world-sidebar">
+            <h2 style="text-align:center;color:#bfa76a;font-family:'MedievalSharp',cursive;">Worlds</h2>
+            <div id="world-map" style="display:flex;flex-direction:column;align-items:center;margin:0 0.5rem 0 0.5rem;background:#fff8e1cc;border-radius:18px;padding:0.7rem 0.5rem 0.5rem 0.5rem;box-shadow:0 0 12px #bfa76a55;"></div>
+        </aside>
     </div>
-    <script src="main.js?v=9999999999999999" defer></script>
+    <script src="main.js?v=guillaume11234578" defer></script>
 </body>
 </html>
